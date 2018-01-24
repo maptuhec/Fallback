@@ -1,5 +1,5 @@
 pragma solidity ^0.4.18;
-import "./Ownable.sol";
+import '../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol';
 
 contract FallbackTask is Ownable {
 
@@ -8,32 +8,38 @@ contract FallbackTask is Ownable {
 	uint public weiLimit;
 	uint public totalWei;
 
-	event FallbackCompleted(address indexed previousOwner, uint amount);
+	event FallbackCompleted(address person, uint amount);
 
 	function FallbackTask(address bobAddress, address carolAddress, uint weiLimitValue) public {
+		require(bobAddress > 0);
+		require(carolAddress > 0);
+		require(weiLimitValue > 0);
 		bob = bobAddress;
 		carol = carolAddress;
 		weiLimit = weiLimitValue;
 	}
 
+
 	function fallback() public payable {
 		require(msg.value > 0);
-		if (totalWei <= weiLimit) {
-			if (totalWei + msg.value <= weiLimit) {
-				bob.transfer(msg.value);
-				FallbackCompleted(bob,msg.value);
-			} else {
-				var valueOverLimit = totalWei + msg.value - weiLimit;
-				carol.transfer(valueOverLimit);
-				bob.transfer(msg.value - valueOverLimit);
-				FallbackCompleted(carol,valueOverLimit);
-				FallbackCompleted(bob, msg.value - valueOverLimit);
-			}
-		} else {
+		if (totalWei >= weiLimit) {
 			carol.transfer(msg.value);
-			FallbackCompleted(carol,msg.value);
+			totalWei += msg.value;
+			FallbackCompleted(carol, msg.value);
+			return;
+		} else {
+			totalWei += msg.value;
+			if (totalWei <= weiLimit) { 
+				bob.transfer(msg.value);
+				FallbackCompleted(bob, msg.value);
+				return;
+			}
+			uint256 valueOverLimit = totalWei - weiLimit;
+			carol.transfer(valueOverLimit);
+			bob.transfer(msg.value - valueOverLimit);
+			FallbackCompleted(carol, valueOverLimit);
+			FallbackCompleted(bob, msg.value - valueOverLimit);
 		}
-		totalWei += msg.value;
 	}
 
 }
