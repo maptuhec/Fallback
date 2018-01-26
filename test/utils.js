@@ -13,3 +13,5 @@ const util = {
 		assert.fail('Expected throw not received')
 	}
 }
+
+module.exports = util;

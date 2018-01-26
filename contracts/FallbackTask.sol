@@ -11,8 +11,8 @@ contract FallbackTask is Ownable {
 	event FallbackCompleted(address person, uint amount);
 
 	function FallbackTask(address bobAddress, address carolAddress, uint weiLimitValue) public {
-		require(bobAddress > 0);
-		require(carolAddress > 0);
+		require(bobAddress > address(0));
+		require(carolAddress > address(0));
 		require(weiLimitValue > 0);
 		bob = bobAddress;
 		carol = carolAddress;
