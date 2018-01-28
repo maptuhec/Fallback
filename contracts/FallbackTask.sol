@@ -27,19 +27,19 @@ contract FallbackTask is Ownable {
 			totalWei += msg.value;
 			FallbackCompleted(carol, msg.value);
 			return;
-		} else {
-			totalWei += msg.value;
-			if (totalWei <= weiLimit) { 
-				bob.transfer(msg.value);
-				FallbackCompleted(bob, msg.value);
-				return;
-			}
-			uint256 valueOverLimit = totalWei - weiLimit;
-			carol.transfer(valueOverLimit);
-			bob.transfer(msg.value - valueOverLimit);
-			FallbackCompleted(carol, valueOverLimit);
-			FallbackCompleted(bob, msg.value - valueOverLimit);
+		} 
+		totalWei += msg.value;
+		if (totalWei <= weiLimit) { 
+			bob.transfer(msg.value);
+			FallbackCompleted(bob, msg.value);
+			return;
 		}
+		uint256 valueOverLimit = totalWei - weiLimit;
+		carol.transfer(valueOverLimit);
+		bob.transfer(msg.value - valueOverLimit);
+		FallbackCompleted(carol, valueOverLimit);
+		FallbackCompleted(bob, msg.value - valueOverLimit);
+	
 	}
 
 }
